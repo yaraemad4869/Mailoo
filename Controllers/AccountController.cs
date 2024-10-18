@@ -17,7 +17,7 @@ namespace Mailo.Controllers
         public AccountController(AppDbContext appDbContext)
         {
             
-            _context    = appDbContext;
+            _context = appDbContext;
         }
         public IActionResult Index()
         {

@@ -41,7 +41,7 @@ namespace Mailo.Controllers
             }
             return NotFound();
         }
-        [HttpPost]
+        [HttpPut]
         [ValidateAntiForgeryToken]
         public IActionResult Edit(Employee employee)
         {
@@ -61,7 +61,7 @@ namespace Mailo.Controllers
             }
             return NotFound();
         }
-        [HttpPost, ActionName("Delete")]
+        [HttpDelete, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteEmployee(int id = 0)
         {

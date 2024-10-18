@@ -4,6 +4,7 @@ using Mailo.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Mailo.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241018161729_all3")]
+    partial class all3
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -181,9 +184,6 @@ namespace Mailo.Migrations
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<int>("Quantity")
-                        .HasColumnType("int");
-
                     b.Property<decimal?>("TotalPrice")
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("decimal(18,2)")
@@ -203,14 +203,13 @@ namespace Mailo.Migrations
                         new
                         {
                             ID = 1,
-                            AdditionDate = "18/10/2024 08:38:09 م",
+                            AdditionDate = "18/10/2024 07:17:27 م",
                             Category = 0,
                             Description = "Designed for comfort and style, the Mailo Pants offer a relaxed fit with soft, breathable fabric—your go-to for any occasion.",
                             Discount = 0m,
                             ImageUrl = "assets/blackpants1.jpeg",
                             Name = "Mailo basha pants",
-                            Price = 750m,
-                            Quantity = 0
+                            Price = 750m
                         });
                 });
 

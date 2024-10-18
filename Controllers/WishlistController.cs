@@ -36,35 +36,62 @@ namespace Mailo.Controllers
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> New(int id)
+        public async Task<IActionResult> New(Product product)
         {
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
             {
                 return Unauthorized();
             }
-            var existingWishlistItem = await _wishlist.ExistingWishlistItem(id, user.ID);
+            //int userId = User.Identity.GetUserId();
+            var existingWishlistItem = await _wishlist.ExistingWishlistItem(product.ID, user.ID);
             //.FirstOrDefaultAsync(w => w.UserId == user.Id && w.ProductId == productId);
 
-                if (existingWishlistItem != null)
-                {
-                    // If the product is already in the wishlist, you may want to return a message
-                    return BadRequest("Product is already in the wishlist.");
-                }
-
-                // Add product to the wishlist
-                var wishlistItem = new Wishlist
-                {
-                    UserID = user.ID,
-                    ProductID = id
-                };
-
-                _unitOfWork.wishlists.Insert(wishlistItem);
-                TempData["Success"] = "Product Has Been Added Successfully";
-                return RedirectToAction("Index");
+            if (existingWishlistItem != null)
+            {
+                return BadRequest("Product is already in the wishlist.");
             }
-        
-	public async Task<IActionResult> Delete(int id)
+
+            // Add product to the wishlist
+            var wishlistItem = new Wishlist
+            {
+                UserID = user.ID,
+                ProductID = product.ID
+            };
+
+            _unitOfWork.wishlists.Insert(wishlistItem);
+            TempData["Success"] = "Product Has Been Added Successfully";
+            return RedirectToAction("Index");
+        }
+        //public async Task<IActionResult> New(int id)
+        //{
+        //    var user = await _userManager.GetUserAsync(User);
+        //    if (user == null)
+        //    {
+        //        return Unauthorized();
+        //    }
+        //    var existingWishlistItem = await _wishlist.ExistingWishlistItem(id, user.ID);
+        //    //.FirstOrDefaultAsync(w => w.UserId == user.Id && w.ProductId == productId);
+
+        //        if (existingWishlistItem != null)
+        //        {
+        //            // If the product is already in the wishlist, you may want to return a message
+        //            return BadRequest("Product is already in the wishlist.");
+        //        }
+
+        //        // Add product to the wishlist
+        //        var wishlistItem = new Wishlist
+        //        {
+        //            UserID = user.ID,
+        //            ProductID = id
+        //        };
+
+        //        _unitOfWork.wishlists.Insert(wishlistItem);
+        //        TempData["Success"] = "Product Has Been Added Successfully";
+        //        return RedirectToAction("Index");
+        //    }
+
+        public async Task<IActionResult> Delete(int id)
 	{
 		var user = await _userManager.GetUserAsync(User);
 		if (user == null)

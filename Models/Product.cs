@@ -15,7 +15,7 @@ namespace Mailo.Models
     public class Product
     {
         public int ID { get; set; }
-		[MaxLength(15)]
+		[MaxLength(30)]
 		public string Name { get; set; }
 		public string? Description { get; set; }
 
@@ -25,13 +25,14 @@ namespace Mailo.Models
         public string AdditionDate { get; set; } = DateTime.Now.ToString();
 
         public decimal Discount { get; set; } = 0;
+        public int Quantity { get; set; }
         public decimal? TotalPrice { get; set; }
         public decimal Price { get; set; }
         //	public ICollection<OrderProduct>? OrderProducts { get; set; }
         public ICollection<Wishlist>? wishlists { get; set; }
        
         [NotMapped]
-        public IFormFile clientFile { get; set; }
+        public IFormFile? clientFile { get; set; }
         public byte[]? dbImage { get; set; }
         [NotMapped]
         public string? imageSrc

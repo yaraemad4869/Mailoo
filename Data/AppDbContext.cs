@@ -98,12 +98,12 @@ namespace Mailo.Data
             .HasComputedColumnSql("[OrderPrice] + ' ' + [DeliveryFee]");
             #endregion
 
-            // #region User Data
-            // modelBuilder.Entity<User>()
-            // .HasData(
-            // new User { ID = 1, FName = "Yara", LName = "Emad Eldien", Username = "Yara_Emad4869", PhoneNumber = "+201127769084", Email = "Yara.Emad4869@gmail.com", Password = "YaraEmad4869", Gender = Gender.Female, UserType = UserType.Client, Address = "Al-Rawda Street, Off the Nile Courniche, Beni Suef" }
-            // );
-            //#endregion
+            #region Products Data
+            modelBuilder.Entity<Product>()
+            .HasData(
+            new Product { ID=1, Name = "Mailo basha pants", Description = "Designed for comfort and style, the Mailo Pants offer a relaxed fit with soft, breathable fabric—your go-to for any occasion.", Price = 750, ImageUrl = "assets/blackpants1.jpeg" }
+            );
+            #endregion
 
             foreach (var rel in modelBuilder.Model.GetEntityTypes().SelectMany(e => e.GetForeignKeys()))
             {

@@ -40,9 +40,6 @@ namespace Mailo.Controllers
 
 
 
-      
-
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> New(Product product)
@@ -56,7 +53,7 @@ namespace Mailo.Controllers
                     product.dbImage=stream.ToArray();
                 }
                 _unitOfWork.products.Insert(product);
-                TempData["Success"] = "product Has Been Added Successfully";
+                TempData["Success"] = "Product Has Been Added Successfully";
                 return RedirectToAction("Index");
             }
             else
@@ -72,7 +69,7 @@ namespace Mailo.Controllers
             }
             return NotFound();
         }
-        [HttpPost]
+        [HttpPut]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(Product product)
         {
@@ -95,7 +92,7 @@ namespace Mailo.Controllers
             return NotFound();
         }
 
-        [HttpPost, ActionName("Delete")]
+        [HttpDelete, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteProduct(int id = 0)
         {

@@ -15,10 +15,12 @@ namespace Mailo.Controllers
         private readonly UserManager<User> _userManager;
         private readonly ICartRepo _order;
         private readonly IUnitOfWork _unitOfWork;
-        public CartController(UserManager<User> userManager, ICartRepo order, IUnitOfWork unitOfWork)
+        private readonly AppDbContext _db;
+        public CartController(UserManager<User> userManager, ICartRepo order, IUnitOfWork unitOfWork, AppDbContext db)
         {
             _userManager = userManager;
             _order = order;
+            _db = db;
             _unitOfWork = unitOfWork;
         }
         public async Task<IActionResult> Index()
@@ -37,14 +39,14 @@ namespace Mailo.Controllers
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> New(int id)
+        public async Task<IActionResult> New(Product product)
         {
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
             {
                 return Unauthorized();
             }
-            var existingCartItem = await _order.ExistingCartItem(id, user.ID);
+            var existingCartItem = await _order.ExistingCartItem(product.ID, user.ID);
 
             if (existingCartItem != null)
             {
@@ -56,7 +58,7 @@ namespace Mailo.Controllers
             TempData["Success"] = "Product Has Been Added Successfully";
             return RedirectToAction("Index");
         }
-        public async Task<IActionResult> NewOrder(int id)
+        public async Task<IActionResult> NewOrder()
         {
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
@@ -71,12 +73,19 @@ namespace Mailo.Controllers
                 // If the product is already in the wishlist, you may want to return a message
                 return BadRequest("Cart is already ordered.");
             }
+            var products = await _db.OrderProducts.Where(op => op.OrderID == existingOrderItem.ID)
+                .Select(op => op.product)
+                .ToListAsync();
+            foreach (var product in products)
+            {
+                product.Quantity -= 1;
+            }
             existingOrderItem.OrderStatus = OrderStatus.Pending;
             existingOrderItem.DeliveryFee = 100;
             TempData["Success"] = "Cart Has Been Ordered Successfully";
             return RedirectToAction("Index");
         }
-		[HttpPost, ActionName("Delete")]
+		[HttpDelete, ActionName("Delete")]
 		[ValidateAntiForgeryToken]
 		public async Task<IActionResult> DeleteFromCart(int id = 0)
 		{
