@@ -1,0 +1,21 @@
+﻿@model List<Product>
+@{
+	ViewData["Title"] = "Show Cart";
+}
+<div>
+	<button type="button" class="btn btn-info" asp-action="NewOrder" asp-controller="Cart">Buy</button>
+
+	@foreach(Product product in Model)
+	{
+		<div class="d-md-flex col-3">
+			<img src="@product.dbImage" alt="@product.Name image" />
+			<div>
+				<h2>@product.Name</h2>
+				<h2 class="text-info">@product.Price</h2>
+				<div class="d-md-flex">
+					@* <button>-</button><h3 class="required_Quantity"></h3><button>+</button> *@
+				</div>
+			</div>
+		</div>
+	}
+</div>

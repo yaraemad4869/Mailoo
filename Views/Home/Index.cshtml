@@ -1,0 +1,48 @@
+﻿@model IEnumerable<Product>
+
+
+<div class="container">
+    <main role="main" class="pb-3">
+        <section class="hero">
+            <div class="hero-content">
+                <h1>Welcome to Online Shopping Store</h1>
+                <p>Discover the latest trends and find your perfect items.</p>
+            </div>
+
+        </section>
+        <section class="categories">
+            <h2>Shop by Category</h2>
+            <div class="row justify-content-center">
+
+                <div class="card" style="width: 18rem;">
+                    <img src="/images/part_of_logo3.jpg" class="card-img-top" alt="">
+                    <div class="card-body">
+                        <h5 class="card-title">PANTS</h5>
+                        <a asp-controller="Product" asp-action="Getpants" class="btn btn-primary">Go To Pants</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="featured-products">
+            <h2 class="text-center">Featured Products</h2> <!-- Center the heading -->
+            <div class="container">
+                <div class="row justify-content-center">
+                    @foreach (var product in Model)
+                    {
+                        <div class="col-md-4 col-sm-6 d-flex justify-content-center">
+                            <div class="card" style="width: 18rem;">
+                                <img src="@product.ImageUrl" class="card-img-top" alt="Product Image">
+                                <div class="card-body">
+                                    <h5 class="card-title">@product.Name</h5>
+                                    <p class="card-text">@product.Description</p>
+                                    <p>@product.Price</p>
+                                    <a href="#" class="btn btn-primary">Quick view</a>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </section>
+    </main>
+<</div>
