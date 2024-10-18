@@ -58,6 +58,8 @@ namespace Mailo.Controllers
             TempData["Success"] = "Product Has Been Added Successfully";
             return RedirectToAction("Index");
         }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> NewOrder()
         {
             var user = await _userManager.GetUserAsync(User);
