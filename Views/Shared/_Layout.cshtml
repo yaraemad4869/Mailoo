@@ -23,16 +23,8 @@
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                @if (Context.User.Identity.Name != null)
-                {
-                }
-                else
-                {
-                <ul class="nav navbar-nav navbar-right">
-                    <li><a class="nav-link text-dark" asp-controller="Account" asp-action="Registration">Register</a></li>
-                    <li><a class="nav-link text-dark" asp-controller="Account" asp-action="Login">Log in</a></li>
-                </ul>
-                }
+                
+               
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
@@ -42,6 +34,17 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Product" asp-action="Index">Product</a>
                         </li>
+                        <li><a class="nav-link text-dark" asp-controller="Cart" asp-action="Index">Cart</a></li>
+
+                        @if (Context.User.Identity.Name != null)
+                        {
+                        }
+                        else
+                        {
+                                <li><a class="nav-link text-dark" asp-controller="Account" asp-action="Registration">Register</a></li>
+                                <li><a class="nav-link text-dark" asp-controller="Account" asp-action="Login">Log in</a></li>
+                           
+                        }
                     </ul>
                     <a href="https://www.instagram.com/mailo.eg/profilecard/?igsh=MTVoazk4bWZvZzRhMQ==" style="width:50px">
                         <i class="bi bi-instagram"></i>

@@ -15,6 +15,7 @@ namespace Mailo.Controllers
         }
         public async Task<IActionResult> Index()
         {
+            
             return View(await _unitOfWork.employees.GetAll());
         }
         public async Task<IActionResult> New()

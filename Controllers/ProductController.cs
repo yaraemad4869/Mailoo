@@ -38,8 +38,6 @@ namespace Mailo.Controllers
             return View();
         }
 
-
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> New(Product product)

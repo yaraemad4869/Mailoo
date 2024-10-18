@@ -3,6 +3,7 @@ using Mailo.Data.Enums;
 using Mailo.IRepo;
 using Mailo.Models;
 using Mailo.Repo;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.CodeAnalysis;
@@ -10,22 +11,23 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Mailo.Controllers
 {
+    //[Authorize(Roles ="Client")]
     public class CartController : Controller
     {
-        private readonly UserManager<User> _userManager;
+        //private readonly UserManager<User> _userManager;
         private readonly ICartRepo _order;
         private readonly IUnitOfWork _unitOfWork;
         private readonly AppDbContext _db;
-        public CartController(UserManager<User> userManager, ICartRepo order, IUnitOfWork unitOfWork, AppDbContext db)
+        public CartController( ICartRepo order, IUnitOfWork unitOfWork, AppDbContext db)
         {
-            _userManager = userManager;
+            //_userManager = userManager;
             _order = order;
             _db = db;
             _unitOfWork = unitOfWork;
         }
         public async Task<IActionResult> Index()
         {
-            var user = await _userManager.GetUserAsync(User);
+            User? user = _db.Users.Where(x => x.Email == User.Identity.Name).FirstOrDefault();
 
             if (user == null)
             {
@@ -41,7 +43,7 @@ namespace Mailo.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> New(Product product)
         {
-            var user = await _userManager.GetUserAsync(User);
+            var user = _db.Users.Where(x => x.Email == User.Identity.Name).FirstOrDefault();
             if (user == null)
             {
                 return Unauthorized();
@@ -62,7 +64,7 @@ namespace Mailo.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> NewOrder()
         {
-            var user = await _userManager.GetUserAsync(User);
+            var user = _db.Users.Where(x => x.Email == User.Identity.Name).FirstOrDefault();
             if (user == null)
             {
                 return Unauthorized();
@@ -91,8 +93,8 @@ namespace Mailo.Controllers
 		[ValidateAntiForgeryToken]
 		public async Task<IActionResult> DeleteFromCart(int id = 0)
 		{
-			var user = await _userManager.GetUserAsync(User);
-			if (user == null)
+            var user = _db.Users.Where(x => x.Email == User.Identity.Name).FirstOrDefault(); 
+            if (user == null)
 			{
 				return Unauthorized();
 			}

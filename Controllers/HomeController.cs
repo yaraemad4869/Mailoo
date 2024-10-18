@@ -18,7 +18,7 @@ public HomeController(ILogger<HomeController> logger , IUnitOfWork unitOfWork)
 
 public async Task<IActionResult> Index()
 {
-	return View(await _unitOfWork.products.GetAll());
+            return View(await _unitOfWork.products.GetAll());
 }
 
       
