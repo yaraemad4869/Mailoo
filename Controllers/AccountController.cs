@@ -9,8 +9,7 @@ using System.Security.Claims;
 
 namespace Mailo.Controllers
 {
-    [Authorize(Roles ="Admin")]
-    [Authorize(Roles ="Client")]
+    
     public class AccountController : Controller
     {
         private readonly AppDbContext _context;

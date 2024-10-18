@@ -12,6 +12,7 @@
 </head>
 <body>
     <header>
+        
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white">
             <div class="container-fluid">
                 <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
@@ -22,6 +23,16 @@
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
+                @if (Context.User.Identity.Name != null)
+                {
+                }
+                else
+                {
+                <ul class="nav navbar-nav navbar-right">
+                    <li><a class="nav-link text-dark" asp-controller="Account" asp-action="Registration">Register</a></li>
+                    <li><a class="nav-link text-dark" asp-controller="Account" asp-action="Login">Log in</a></li>
+                </ul>
+                }
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
@@ -38,6 +49,7 @@
                     <a href="mailostoreee@gmail.com" class="fs-18 cl7 hov-cl1 trans-04 m-r-16" style="padding:10px">
                         <i class="bi bi-google"></i>
                     </a>
+
 
                     @* <a asp-controller="User" asp-action="Index"><i class="bi bi-person-circle large-icon" style="width:50px;"></i></a>   ==> an error here *@
                 </div>
