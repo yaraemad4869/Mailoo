@@ -25,20 +25,20 @@ namespace Mailo.Controllers
             _db = db;
             _unitOfWork = unitOfWork;
         }
-        private Order GetOrCreateCart(int userId)
+        private Order GetOrCreateCart(User user)
         {
-            var cart = _db.Orders.FirstOrDefault(o => o.UserID == userId && o.OrderStatus == OrderStatus.New);
+            var cart = _db.Orders.FirstOrDefault(o => o.UserID == user.ID && o.OrderStatus == OrderStatus.New);
             if (cart == null)
             {
                 cart = new Order
                 {
-                    UserID = userId,
-                    OrderDate = DateTime.Now,
+                    UserID = user.ID,
+                    OrderPrice = 0,
+                    OrderAddress = user.Address,
                     OrderStatus = OrderStatus.New,
                     OrderProducts = new List<OrderProduct>()
                 };
-                _db.Orders.Add(cart);
-                _db.SaveChanges();
+                _unitOfWork.orders.Insert(cart);
             }
             return cart;
         }
@@ -52,14 +52,14 @@ namespace Mailo.Controllers
             }
 
             Order cart = await _db.Orders.Where(o => o.UserID == user.ID && o.OrderStatus == OrderStatus.New).FirstOrDefaultAsync();
-            
                 if (cart == null)
                 {
                 return BadRequest("Cart is empty");
                     // cart = new Order { OrderPrice = 0, OrderAddress = user.Address, UserID = user.ID };
                     //_unitOfWork.orders.Insert(cart);
                 }
-            
+            Console.WriteLine("************************" + cart.ID + "**********************");
+
             return View(cart);
             //return View(await _order.GetProducts(await _order.GetOrder(user)));
         }
@@ -67,7 +67,7 @@ namespace Mailo.Controllers
         public ActionResult ClearCart()
         {
             User? user = _db.Users.Where(x => x.Email == User.Identity.Name).FirstOrDefault();
-            var cart = GetOrCreateCart(user.ID);
+            var cart = GetOrCreateCart(user);
 
             cart.OrderProducts.Clear();
             _db.SaveChanges();
@@ -78,7 +78,7 @@ namespace Mailo.Controllers
         public async Task<IActionResult> AddProduct(int productId)
         {
             User? user = _db.Users.Where(x => x.Email == User.Identity.Name).FirstOrDefault();
-            var cart = GetOrCreateCart(user.ID);
+            var cart = GetOrCreateCart(user);
 
             var product = await _db.Products.FindAsync(productId);
             if (product == null)
@@ -108,7 +108,7 @@ namespace Mailo.Controllers
         public async Task<IActionResult> RemoveProduct(int productId)
         {
             User? user = await _db.Users.Where(x => x.Email == User.Identity.Name).FirstOrDefaultAsync();
-            var cart = GetOrCreateCart(user.ID);
+            var cart = GetOrCreateCart(user);
 
             var orderProduct = cart.OrderProducts.FirstOrDefault(op => op.ProductID == productId);
             if (orderProduct != null)
