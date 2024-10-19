@@ -1,4 +1,4 @@
-﻿@model List<Product>
+﻿@* @model List<Product>
 @{
 	ViewData["Title"] = "Show Cart";
 }
@@ -33,4 +33,49 @@
             }
         </div>
     </div>
-</div>
+</div> *@
+
+@model Order
+
+<h2>Your Shopping Cart</h2>
+
+@if (Model == null || !Model.OrderProducts.Any())
+{
+    <p>Your cart is empty.</p>
+}
+else
+{
+    <table>
+        <tr>
+            <th>Product</th>
+            <th>Total</th>
+            <th>Actions</th>
+        </tr>
+        @foreach (var item in Model.OrderProducts)
+        {
+            <tr>
+                <td>@item.product.Name</td>
+                @* <td>@item.Quantity</td> *@
+                <td>@item.product.TotalPrice.ToString("C")</td>
+                @* <td>@(item.Quantity * item.product.Price).ToString("C")</td> *@
+                <td>
+                    @using (Html.BeginForm("RemoveProduct", "Cart", FormMethod.Post))
+                    {
+                        @Html.Hidden("productId", item.ProductID)
+                        <input type="submit" value="Remove" />
+                    }
+                </td>
+            </tr>
+        }
+    </table>
+
+    @using (Html.BeginForm("ClearCart", "Cart", FormMethod.Post))
+    {
+        <input type="submit" value="Clear Cart" />
+    }
+
+    @using (Html.BeginForm("Checkout", "Cart", FormMethod.Post))
+    {
+        <input type="submit" value="Checkout" />
+    }
+}

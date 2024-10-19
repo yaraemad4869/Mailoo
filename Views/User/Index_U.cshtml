@@ -10,7 +10,7 @@
                         <h5 class="card-title">@item.Name</h5>
                         <p class="card-text">@item.Description</p>
                         <p>Price @item.TotalPrice</p>
-                         <p class="card-text">@item.Quantity</p>
+                         <p class="card-text">Quuantity : @item.Quantity</p>
                         <form asp-action="New" asp-controller="Cart">
                             <input asp-for="@item.ID" type="hidden" />
                             <input asp-for="@item.imageSrc" type="hidden">

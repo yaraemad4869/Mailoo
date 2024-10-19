@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Mailo.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20241019123500_all")]
+    [Migration("20241019125035_all")]
     partial class all
     {
         /// <inheritdoc />
@@ -160,7 +160,6 @@ namespace Mailo.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
 
                     b.Property<DateTime>("AdditionDate")
-                        .HasMaxLength(50)
                         .HasColumnType("datetime2");
 
                     b.Property<int>("Category")
@@ -205,7 +204,7 @@ namespace Mailo.Migrations
                         new
                         {
                             ID = 1,
-                            AdditionDate = new DateTime(2024, 10, 19, 15, 34, 58, 918, DateTimeKind.Local).AddTicks(8556),
+                            AdditionDate = new DateTime(2024, 10, 19, 15, 50, 34, 180, DateTimeKind.Local).AddTicks(2395),
                             Category = 0,
                             Description = "Designed for comfort and style, the Mailo Pants offer a relaxed fit with soft, breathable fabric—your go-to for any occasion.",
                             Discount = 0m,

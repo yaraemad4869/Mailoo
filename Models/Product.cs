@@ -21,7 +21,6 @@ namespace Mailo.Models
 
         public Product_Categories Category { get; set; }
         public string? ImageUrl { get; set; }
-        [MaxLength(50)]
         public DateTime AdditionDate { get; set; } = DateTime.Now;
         [Range(0, int.MaxValue, ErrorMessage = "The value must be greater than 0.")]
 

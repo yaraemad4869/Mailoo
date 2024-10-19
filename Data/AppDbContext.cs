@@ -95,7 +95,7 @@ namespace Mailo.Data
             .HasComputedColumnSql("[FName] + ' ' + [LName]");
             modelBuilder.Entity<Order>()
             .Property(e => e.TotalPrice)
-            .HasComputedColumnSql("[OrderPrice] + ' ' + [DeliveryFee]");
+            .HasComputedColumnSql("[OrderPrice] + [DeliveryFee]");
             #endregion
 
             #region Products Data

@@ -25,6 +25,23 @@ namespace Mailo.Controllers
             _db = db;
             _unitOfWork = unitOfWork;
         }
+        private Order GetOrCreateCart(int userId)
+        {
+            var cart = _db.Orders.FirstOrDefault(o => o.UserID == userId && o.OrderStatus == OrderStatus.New);
+            if (cart == null)
+            {
+                cart = new Order
+                {
+                    UserID = userId,
+                    OrderDate = DateTime.Now,
+                    OrderStatus = OrderStatus.New,
+                    OrderProducts = new List<OrderProduct>()
+                };
+                _db.Orders.Add(cart);
+                _db.SaveChanges();
+            }
+            return cart;
+        }
         public async Task<IActionResult> Index()
         {
             User? user = _db.Users.Where(x => x.Email == User.Identity.Name).FirstOrDefault();
@@ -33,10 +50,82 @@ namespace Mailo.Controllers
             {
                 return NotFound("User not found");
             }
-            return View(await _order.GetProducts(await _order.GetOrder(user)));
+
+            Order cart = await _db.Orders.Where(o => o.UserID == user.ID && o.OrderStatus == OrderStatus.New).FirstOrDefaultAsync();
+            
+                if (cart == null)
+                {
+                return BadRequest("Cart is empty");
+                    // cart = new Order { OrderPrice = 0, OrderAddress = user.Address, UserID = user.ID };
+                    //_unitOfWork.orders.Insert(cart);
+                }
+            
+            return View(cart);
+            //return View(await _order.GetProducts(await _order.GetOrder(user)));
         }
-       
         [HttpPost]
+        public ActionResult ClearCart()
+        {
+            User? user = _db.Users.Where(x => x.Email == User.Identity.Name).FirstOrDefault();
+            var cart = GetOrCreateCart(user.ID);
+
+            cart.OrderProducts.Clear();
+            _db.SaveChanges();
+
+            return RedirectToAction("Index");
+        }
+        [HttpPost]
+        public async Task<IActionResult> AddProduct(int productId)
+        {
+            User? user = _db.Users.Where(x => x.Email == User.Identity.Name).FirstOrDefault();
+            var cart = GetOrCreateCart(user.ID);
+
+            var product = await _db.Products.FindAsync(productId);
+            if (product == null)
+            {
+                return NotFound("Product not found");
+            }
+
+            var existingOrderProduct = cart.OrderProducts.FirstOrDefault(op => op.ProductID == productId);
+            if (existingOrderProduct != null)
+            {
+                cart.OrderPrice += product.TotalPrice;
+            }
+            else
+            {
+                // Otherwise, add a new product to the cart
+                cart.OrderProducts.Add(new OrderProduct
+                {
+                    ProductID = productId,
+                    OrderID = cart.ID
+                });
+            }
+
+            _db.SaveChanges();
+            return RedirectToAction("Index");
+        }
+        [HttpPost]
+        public async Task<IActionResult> RemoveProduct(int productId)
+        {
+            User? user = await _db.Users.Where(x => x.Email == User.Identity.Name).FirstOrDefaultAsync();
+            var cart = GetOrCreateCart(user.ID);
+
+            var orderProduct = cart.OrderProducts.FirstOrDefault(op => op.ProductID == productId);
+            if (orderProduct != null)
+            {
+                var product = await _db.Products.FindAsync(productId);
+                cart.OrderPrice -= product.TotalPrice;
+                cart.OrderProducts.Remove(orderProduct);
+                _db.SaveChanges();
+            }
+
+            return RedirectToAction("Index");
+        }
+        public async Task<IActionResult> New()
+        {
+            return View();
+        }
+            [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> New(Product product)
         {

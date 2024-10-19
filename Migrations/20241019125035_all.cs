@@ -35,7 +35,7 @@ namespace Mailo.Migrations
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Category = table.Column<int>(type: "int", nullable: false),
                     ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    AdditionDate = table.Column<DateTime>(type: "datetime2", maxLength: 50, nullable: false),
+                    AdditionDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Discount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     Quantity = table.Column<int>(type: "int", nullable: false),
                     TotalPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false, computedColumnSql: "[Price]-([Discount]/100)*[Price]"),
@@ -230,7 +230,7 @@ namespace Mailo.Migrations
             migrationBuilder.InsertData(
                 table: "Product",
                 columns: new[] { "ID", "AdditionDate", "Category", "Description", "Discount", "ImageUrl", "Name", "Price", "Quantity", "dbImage" },
-                values: new object[] { 1, new DateTime(2024, 10, 19, 15, 34, 58, 918, DateTimeKind.Local).AddTicks(8556), 0, "Designed for comfort and style, the Mailo Pants offer a relaxed fit with soft, breathable fabric—your go-to for any occasion.", 0m, "~/assets/blackpants1.jpeg", "Mailo basha pants", 750m, 3, null });
+                values: new object[] { 1, new DateTime(2024, 10, 19, 15, 50, 34, 180, DateTimeKind.Local).AddTicks(2395), 0, "Designed for comfort and style, the Mailo Pants offer a relaxed fit with soft, breathable fabric—your go-to for any occasion.", 0m, "~/assets/blackpants1.jpeg", "Mailo basha pants", 750m, 3, null });
 
             migrationBuilder.CreateIndex(
                 name: "IX_EmployeeContact_EmpID",
