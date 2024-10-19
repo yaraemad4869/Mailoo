@@ -22,13 +22,16 @@ namespace Mailo.Models
         public Product_Categories Category { get; set; }
         public string? ImageUrl { get; set; }
         [MaxLength(50)]
-        public string AdditionDate { get; set; } = DateTime.Now.ToString();
+        public DateTime AdditionDate { get; set; } = DateTime.Now;
+        [Range(0, int.MaxValue, ErrorMessage = "The value must be greater than 0.")]
 
         public decimal Discount { get; set; } = 0;
+        [Range(0, int.MaxValue, ErrorMessage = "The value must be greater than 0.")]
         public int Quantity { get; set; }
-        public decimal? TotalPrice { get; set; }
+        public decimal TotalPrice { get; set; }
+        [Range(0, float.MaxValue, ErrorMessage = "The value must be greater than 0.")]
         public decimal Price { get; set; }
-        //	public ICollection<OrderProduct>? OrderProducts { get; set; }
+        public ICollection<OrderProduct>? OrderProducts { get; set; }
         public ICollection<Wishlist>? wishlists { get; set; }
        
         [NotMapped]

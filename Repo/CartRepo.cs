@@ -2,17 +2,19 @@
 using Mailo.Data.Enums;
 using Mailo.IRepo;
 using Mailo.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
+using NuGet.Protocol;
 
 namespace Mailo.Repo
 {
     public class CartRepo : ICartRepo
     {
         private readonly AppDbContext _db;
-        public CartRepo(AppDbContext db,IBasicRepo<Order> repo)
+        public CartRepo(AppDbContext db, IBasicRepo<Order> repo)
         {
             _db = db;
         }
@@ -22,39 +24,69 @@ namespace Mailo.Repo
                 .Select(op => op.product)
                 .ToListAsync();
         }
-        public async Task<OrderProduct> IsMatched(Order order,int id)
+        public async Task<OrderProduct> IsMatched(Order order, int id)
         {
             return await _db.OrderProducts.FirstOrDefaultAsync(op => op.OrderID == order.ID && op.ProductID == id);
         }
-        public async Task<Order> GetOrder(int id)
+
+        //public async Task<Order> GetOrder(User user)
+        //{
+        //    Order? order = await _db.Orders.FirstOrDefaultAsync(o => new { o.UserID == user.ID && o.OrderStatus == OrderStatus.New });
+    //        if (order == null)
+    //        {
+    //            order = new Order { OrderPrice = 0, OrderAddress = user.Address, UserID = user.ID
+    //};
+    //_db.Orders.Add(order);
+    //            _db.SaveChanges();
+    //        }
+
+//    return order;
+//}
+public async Task<Order> GetOrder(User user)
         {
-            return await _db.Orders.FirstOrDefaultAsync(o => o.UserID == id && o.OrderStatus == OrderStatus.New);
+            try
+            {
+                return await _db.Orders.FirstOrDefaultAsync(o => o.UserID == user.ID && o.OrderStatus == OrderStatus.New);
+            }
+            catch (Exception ex)
+            {
+               
+                   Order order = new Order
+                    {
+                        OrderPrice = 0,
+                        OrderAddress = user.Address,
+                        UserID = user.ID
+                    };
+                    _db.Orders.Add(order);
+                    _db.SaveChanges();
+                
+                return order;
+            }
         }
-        public async Task<OrderProduct> ExistingCartItem(int productId, int userId)
+        public async Task<OrderProduct> ExistingCartItem(int productId, User user)
         {
-            return await IsMatched(await GetOrder(userId),productId);
+            return await IsMatched(await GetOrder(user), productId);
         }
-        public async void InsertToCart(int OrderId , int ProductId)
+        public async void InsertToCart(int OrderId, int ProductId)
         {
             OrderProduct op = new OrderProduct
             {
-                OrderID= OrderId,
-                ProductID= ProductId
+                OrderID = OrderId,
+                ProductID = ProductId
             };
-            
+
             await _db.OrderProducts.AddAsync(op);
             _db.SaveChanges();
         }
-		public async void DeleteFromCart(int OrderId, int ProductId)
-		{
-			OrderProduct op = new OrderProduct
-			{
-				OrderID = OrderId,
-				ProductID = ProductId
-			};
-             _db.OrderProducts.Remove(op);
-			_db.SaveChanges();
-		}
-	}
+        public async void DeleteFromCart(int OrderId, int ProductId)
+        {
+            OrderProduct op = new OrderProduct
+            {
+                OrderID = OrderId,
+                ProductID = ProductId
+            };
+            _db.OrderProducts.Remove(op);
+            _db.SaveChanges();
+        }
+    }
 }
-

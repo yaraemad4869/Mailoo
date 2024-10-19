@@ -34,6 +34,12 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Product" asp-action="Index">Product</a>
                         </li>
+                                                <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="User" asp-action="Index_U">User</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="User" asp-action="Index_A">Admin</a>
+                        </li>
                         <li><a class="nav-link text-dark" asp-controller="Cart" asp-action="Index">Cart</a></li>
 
                         @if (Context.User.Identity.Name != null)
@@ -41,6 +47,8 @@
                         }
                         else
                         {
+                            @* <li><a class="nav-link text-dark" asp-controller="Account" asp-action="Registration">Register</a></li> *@
+
                                 <li><a class="nav-link text-dark" asp-controller="Account" asp-action="Registration">Register</a></li>
                                 <li><a class="nav-link text-dark" asp-controller="Account" asp-action="Login">Log in</a></li>
                            

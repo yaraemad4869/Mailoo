@@ -8,9 +8,10 @@ namespace Mailo.IRepo
 
         Task<List<Product>> GetProducts(Order order);
         Task<OrderProduct> IsMatched(Order order, int id);
-        Task<Order> GetOrder(int id);
-        Task<OrderProduct> ExistingCartItem(int productId, int userId);
-		void InsertToCart(int iD, int productID);
+        Task<Order> GetOrder(User user);
+        Task<OrderProduct> ExistingCartItem(int productId, User user);
+
+        void InsertToCart(int iD, int productID);
         void DeleteFromCart(int OrderId, int ProductId);
 
 	}

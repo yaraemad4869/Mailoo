@@ -1,0 +1,50 @@
+﻿@model List<Product>
+<div class="container">
+    <div class="row justify-content-center">
+        @foreach (var item in Model)
+        {
+            <div class="col-md-4 col-sm-6 d-flex justify-content-center">
+                <div class="card" style="width: 18rem;">
+                    <img src="@item.imageSrc" class="card-img-top" alt="Product Image">
+                    <div class="card-body">
+                        <h5 class="card-title">@item.Name</h5>
+                        <p class="card-text">@item.Description</p>
+                        <p>Price @item.TotalPrice</p>
+                         <p class="card-text">@item.Quantity</p>
+                        <form asp-action="New" asp-controller="Cart">
+                            <input asp-for="@item.ID" type="hidden" />
+                            <input asp-for="@item.imageSrc" type="hidden">
+                            <input asp-for="@item.Discount" type="hidden" />
+                            <input asp-for="@item.Name" type="hidden" />
+                            <input asp-for="@item.Price" type="hidden" />
+                            <input asp-for="@item.Quantity" type="hidden" />
+                            <input asp-for="@item.Description" type="hidden" />
+                            <input asp-for="@item.AdditionDate" type="hidden" />
+                            <button type="submit" class="btn btn-primary" style="width:150px">
+                                Add to cart
+                            </button>
+                        </form>
+                       
+                        @* <a href="#" class="btn btn-primary">Add to cart</a> *@
+
+                        <form asp-action="New" asp-controller="Wishlist">
+                            <input asp-for="@item.ID" type="hidden" />
+                            <input asp-for="@item.imageSrc" type="hidden">
+                            <input asp-for="@item.Discount" type="hidden" />
+
+                            <input asp-for="@item.Name" type="hidden" />
+                            <input asp-for="@item.Price" type="hidden" />
+                            <input asp-for="@item.Quantity" type="hidden" />
+                            <input asp-for="@item.AdditionDate" type="hidden" />
+                            <input asp-for="@item.Description" type="hidden" />
+                            <button type="submit" class="btn btn-primary" style="width:150px">
+                                <i class="bi bi-bag-heart" style="font-size: 24px;"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+        }
+    </div>
+</div>

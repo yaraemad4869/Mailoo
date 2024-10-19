@@ -14,11 +14,11 @@ namespace Mailo.Controllers
     //[Authorize(Roles ="Client")]
     public class CartController : Controller
     {
-        //private readonly UserManager<User> _userManager;
+        
         private readonly ICartRepo _order;
         private readonly IUnitOfWork _unitOfWork;
         private readonly AppDbContext _db;
-        public CartController( ICartRepo order, IUnitOfWork unitOfWork, AppDbContext db)
+        public CartController(ICartRepo order, IUnitOfWork unitOfWork, AppDbContext db)
         {
             //_userManager = userManager;
             _order = order;
@@ -33,12 +33,9 @@ namespace Mailo.Controllers
             {
                 return NotFound("User not found");
             }
-            return View(await _order.GetProducts(await _order.GetOrder(user.ID)));
+            return View(await _order.GetProducts(await _order.GetOrder(user)));
         }
-        public async Task<IActionResult> New()
-        {
-            return View();
-        }
+       
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> New(Product product)
@@ -48,15 +45,37 @@ namespace Mailo.Controllers
             {
                 return Unauthorized();
             }
-            var existingCartItem = await _order.ExistingCartItem(product.ID, user.ID);
 
-            if (existingCartItem != null)
+            if (user.orders != null)
             {
-                return BadRequest("Product is already in the cart.");
+                var existingCartItem = await _order.ExistingCartItem(product.ID, user);
+
+                if (existingCartItem != null)
+                {
+                    return BadRequest("Product is already in the cart.");
+                }
+
+                Order o = await _order.GetOrder(user);
+
+                _order.InsertToCart(o.ID, existingCartItem.ProductID);
             }
-            Order o = await _order.GetOrder(user.ID);
-             _order.InsertToCart(o.ID, existingCartItem.ProductID);
-            
+            else
+            {
+                Order order = new Order
+                {
+                    OrderPrice = product.TotalPrice,
+                    OrderAddress = user.Address,
+                    UserID = user.ID
+                };
+                _db.Orders.Add(order);
+                _db.SaveChanges();
+                OrderProduct op = new OrderProduct
+                {
+                    OrderID=order.ID,
+                    ProductID=product.ID
+                };
+                _order.InsertToCart(order.ID, op.ProductID);
+            }
             TempData["Success"] = "Product Has Been Added Successfully";
             return RedirectToAction("Index");
         }
@@ -69,10 +88,10 @@ namespace Mailo.Controllers
             {
                 return Unauthorized();
             }
-            var existingOrderItem = await _order.GetOrder(user.ID);
+            var existingOrderItem = await _order.GetOrder(user);
             //.FirstOrDefaultAsync(w => w.UserId == user.Id && w.ProductId == productId);
 
-            if (existingOrderItem == null||(existingOrderItem.OrderStatus!=OrderStatus.New))
+            if (existingOrderItem == null || (existingOrderItem.OrderStatus != OrderStatus.New))
             {
                 // If the product is already in the wishlist, you may want to return a message
                 return BadRequest("Cart is already ordered.");
@@ -85,32 +104,31 @@ namespace Mailo.Controllers
                 product.Quantity -= 1;
             }
             existingOrderItem.OrderStatus = OrderStatus.Pending;
-            existingOrderItem.DeliveryFee = 100;
             TempData["Success"] = "Cart Has Been Ordered Successfully";
             return RedirectToAction("Index");
         }
-		[HttpDelete, ActionName("Delete")]
-		[ValidateAntiForgeryToken]
-		public async Task<IActionResult> DeleteFromCart(int id = 0)
-		{
-            var user = _db.Users.Where(x => x.Email == User.Identity.Name).FirstOrDefault(); 
+        [HttpDelete, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteFromCart(int id = 0)
+        {
+            var user = _db.Users.Where(x => x.Email == User.Identity.Name).FirstOrDefault();
             if (user == null)
-			{
-				return Unauthorized();
-			}
-			var existingCartItem = await _order.ExistingCartItem(id, user.ID);
+            {
+                return Unauthorized();
+            }
+            var existingCartItem = await _order.ExistingCartItem(id, user);
 
-			if (existingCartItem == null)
-			{
-				// If the product is already in the wishlist, you may want to return a message
-				return BadRequest("Cart is already ordered.");
-			}
+            if (existingCartItem == null)
+            {
+                // If the product is already in the wishlist, you may want to return a message
+                return BadRequest("Cart is already ordered.");
+            }
             _order.DeleteFromCart(existingCartItem.OrderID, existingCartItem.ProductID);
 
-			TempData["Success"] = "Cart Has Been Ordered Successfully";
-			return RedirectToAction("Index");
+            TempData["Success"] = "Cart Has Been Ordered Successfully";
+            return RedirectToAction("Index");
 
-		}
-	}
+        }
+    }
 
 }

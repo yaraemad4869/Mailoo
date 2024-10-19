@@ -15,7 +15,7 @@
             <div class="row justify-content-center">
 
                 <div class="card" style="width: 18rem;">
-                    <img src="/images/part_of_logo3.jpg" class="card-img-top" alt="">
+                    <img src="~/images/part_of_logo3.jpg" class="card-img-top" alt="">
                     <div class="card-body">
                         <h5 class="card-title">PANTS</h5>
                         <a asp-controller="Product" asp-action="Getpants" class="btn btn-primary">Go To Pants</a>
@@ -31,15 +31,13 @@
                     {
                         <div class="col-md-4 col-sm-6 d-flex justify-content-center">
                             <div class="card" style="width: 18rem;">
-                                <img src="@product.ImageUrl" class="card-img-top" alt="Product Image">
+                                <img src="@if(@product.imageSrc!=null){
+                            @product.imageSrc}else{@product.ImageUrl}" class="card-img-top" alt="Product Image">
                                 <div class="card-body">
                                     <h5 class="card-title">@product.Name</h5>
                                     <p class="card-text">@product.Description</p>
                                     <p>@product.Price</p>
                                     <a href="#" class="btn btn-primary">Quick view</a>
-                                    <a asp-action="New" asp-controller="Wishlist">
-                                        <i class="bi bi-bag-heart" style="font-size: 24px;"></i>
-                                    </a>
                                 </div>
                             </div>
                         </div>

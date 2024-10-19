@@ -86,12 +86,12 @@ namespace Mailo.Migrations
                     b.Property<int>("OrderStatus")
                         .HasColumnType("int");
 
-                    b.Property<decimal>("TotalPrice")
+                    b.Property<decimal?>("TotalPrice")
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("decimal(18,2)")
                         .HasComputedColumnSql("[OrderPrice] + ' ' + [DeliveryFee]");
 
-                    b.Property<int?>("UserID")
+                    b.Property<int>("UserID")
                         .HasColumnType("int");
 
                     b.HasKey("ID");
@@ -156,10 +156,9 @@ namespace Mailo.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
 
-                    b.Property<string>("AdditionDate")
-                        .IsRequired()
+                    b.Property<DateTime>("AdditionDate")
                         .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("Category")
                         .HasColumnType("int");
@@ -184,7 +183,7 @@ namespace Mailo.Migrations
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
-                    b.Property<decimal?>("TotalPrice")
+                    b.Property<decimal>("TotalPrice")
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("decimal(18,2)")
                         .HasComputedColumnSql("[Price]-([Discount]/100)*[Price]");
@@ -203,14 +202,15 @@ namespace Mailo.Migrations
                         new
                         {
                             ID = 1,
-                            AdditionDate = "18/10/2024 08:38:09 م",
+                            AdditionDate = new DateTime(2024, 10, 19, 15, 34, 58, 918, DateTimeKind.Local).AddTicks(8556),
                             Category = 0,
                             Description = "Designed for comfort and style, the Mailo Pants offer a relaxed fit with soft, breathable fabric—your go-to for any occasion.",
                             Discount = 0m,
-                            ImageUrl = "assets/blackpants1.jpeg",
+                            ImageUrl = "~/assets/blackpants1.jpeg",
                             Name = "Mailo basha pants",
                             Price = 750m,
-                            Quantity = 0
+                            Quantity = 3,
+                            TotalPrice = 0m
                         });
                 });
 
@@ -377,7 +377,8 @@ namespace Mailo.Migrations
                     b.HasOne("Mailo.Models.User", "user")
                         .WithMany("orders")
                         .HasForeignKey("UserID")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.Navigation("employee");
 
@@ -393,7 +394,7 @@ namespace Mailo.Migrations
                         .IsRequired();
 
                     b.HasOne("Mailo.Models.Product", "product")
-                        .WithMany()
+                        .WithMany("OrderProducts")
                         .HasForeignKey("ProductID")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -464,6 +465,8 @@ namespace Mailo.Migrations
 
             modelBuilder.Entity("Mailo.Models.Product", b =>
                 {
+                    b.Navigation("OrderProducts");
+
                     b.Navigation("wishlists");
                 });
 

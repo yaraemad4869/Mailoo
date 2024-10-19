@@ -101,7 +101,7 @@ namespace Mailo.Data
             #region Products Data
             modelBuilder.Entity<Product>()
             .HasData(
-            new Product { ID=1, Name = "Mailo basha pants", Description = "Designed for comfort and style, the Mailo Pants offer a relaxed fit with soft, breathable fabric—your go-to for any occasion.", Price = 750, ImageUrl = "assets/blackpants1.jpeg" }
+            new Product { ID=1, Name = "Mailo basha pants", Description = "Designed for comfort and style, the Mailo Pants offer a relaxed fit with soft, breathable fabric—your go-to for any occasion.", Price = 750, ImageUrl = "~/assets/blackpants1.jpeg",Quantity=3 }
             );
             #endregion
 

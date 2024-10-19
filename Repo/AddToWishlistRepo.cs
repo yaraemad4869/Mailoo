@@ -22,9 +22,9 @@ namespace Mailo.Repo
                 .ToListAsync();
             return await products;
         }
-        public async Task<Wishlist> ExistingWishlistItem(int id,int userId) {
+        public async Task<Wishlist> ExistingWishlistItem(int id,User user) {
             
-            return await _db.Wishlists.FirstOrDefaultAsync(w => w.UserID == userId && w.ProductID == id);
+            return await _db.Wishlists.FirstOrDefaultAsync(w => w.UserID == user.ID && w.ProductID == id);
         }
 
         

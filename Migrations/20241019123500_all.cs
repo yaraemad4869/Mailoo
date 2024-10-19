@@ -31,13 +31,14 @@ namespace Mailo.Migrations
                 {
                     ID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(15)", maxLength: 15, nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Category = table.Column<int>(type: "int", nullable: false),
                     ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    AdditionDate = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    AdditionDate = table.Column<DateTime>(type: "datetime2", maxLength: 50, nullable: false),
                     Discount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    TotalPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: true, computedColumnSql: "[Price]-([Discount]/100)*[Price]"),
+                    Quantity = table.Column<int>(type: "int", nullable: false),
+                    TotalPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false, computedColumnSql: "[Price]-([Discount]/100)*[Price]"),
                     Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     dbImage = table.Column<byte[]>(type: "varbinary(max)", nullable: true)
                 },
@@ -104,10 +105,10 @@ namespace Mailo.Migrations
                     OrderDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     OrderPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     DeliveryFee = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    TotalPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false, computedColumnSql: "[OrderPrice] + ' ' + [DeliveryFee]"),
+                    TotalPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: true, computedColumnSql: "[OrderPrice] + ' ' + [DeliveryFee]"),
                     OrderAddress = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     OrderStatus = table.Column<int>(type: "int", nullable: false),
-                    UserID = table.Column<int>(type: "int", nullable: true),
+                    UserID = table.Column<int>(type: "int", nullable: false),
                     EmpID = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
@@ -225,6 +226,11 @@ namespace Mailo.Migrations
                         principalColumn: "ID",
                         onDelete: ReferentialAction.Restrict);
                 });
+
+            migrationBuilder.InsertData(
+                table: "Product",
+                columns: new[] { "ID", "AdditionDate", "Category", "Description", "Discount", "ImageUrl", "Name", "Price", "Quantity", "dbImage" },
+                values: new object[] { 1, new DateTime(2024, 10, 19, 15, 34, 58, 918, DateTimeKind.Local).AddTicks(8556), 0, "Designed for comfort and style, the Mailo Pants offer a relaxed fit with soft, breathable fabric—your go-to for any occasion.", 0m, "~/assets/blackpants1.jpeg", "Mailo basha pants", 750m, 3, null });
 
             migrationBuilder.CreateIndex(
                 name: "IX_EmployeeContact_EmpID",

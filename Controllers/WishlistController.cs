@@ -11,19 +11,18 @@ namespace Mailo.Controllers
 {
     public class WishlistController : Controller
     {
-        private readonly UserManager<User> _userManager;
         private readonly IAddToWishlistRepo _wishlist;
         private readonly IUnitOfWork _unitOfWork;
-        public WishlistController(UserManager<User> userManager, IAddToWishlistRepo wishlist, IUnitOfWork unitOfWork)
+        private readonly AppDbContext _db;
+        public WishlistController(AppDbContext db,IAddToWishlistRepo wishlist, IUnitOfWork unitOfWork)
         {
-            _userManager = userManager;
             _wishlist = wishlist;
             _unitOfWork = unitOfWork;
+            _db = db;
         }
         public async Task<IActionResult> Index()
         {
-            var user = await _userManager.GetUserAsync(User);
-
+            User? user = _db.Users.Where(x => x.Email == User.Identity.Name).FirstOrDefault();
             if (user == null)
             {
                 return NotFound("User not found");
@@ -38,13 +37,13 @@ namespace Mailo.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> New(Product product)
         {
-            var user = await _userManager.GetUserAsync(User);
+            User? user = _db.Users.Where(x => x.Email == User.Identity.Name).FirstOrDefault();
             if (user == null)
             {
                 return Unauthorized();
             }
             //int userId = User.Identity.GetUserId();
-            var existingWishlistItem = await _wishlist.ExistingWishlistItem(product.ID, user.ID);
+            var existingWishlistItem = await _wishlist.ExistingWishlistItem(product.ID, user);
             //.FirstOrDefaultAsync(w => w.UserId == user.Id && w.ProductId == productId);
 
             if (existingWishlistItem != null)
@@ -93,12 +92,12 @@ namespace Mailo.Controllers
 
         public async Task<IActionResult> Delete(int id)
 	{
-		var user = await _userManager.GetUserAsync(User);
-		if (user == null)
+            User? user = _db.Users.Where(x => x.Email == User.Identity.Name).FirstOrDefault();
+            if (user == null)
 		{
 			return Unauthorized();
 		}
-		var existingWishlistItem = await _wishlist.ExistingWishlistItem(id, user.ID);
+		var existingWishlistItem = await _wishlist.ExistingWishlistItem(id, user);
 		//.FirstOrDefaultAsync(w => w.UserId == user.Id && w.ProductId == productId);
 
 		if (existingWishlistItem == null)

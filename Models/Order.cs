@@ -19,12 +19,12 @@ namespace Mailo.Models
         [DisplayName("Order Price")]
 
         public decimal OrderPrice { get; set; }
-        [DisplayName("Delivery Fee")]
+		[DisplayName("Delivery Fee")]
 
-        public decimal DeliveryFee { get; set; }
+		public decimal DeliveryFee { get; set; } = 100;
         [DisplayName("Total Price")]
 
-        public decimal TotalPrice { get; set; }
+        public decimal? TotalPrice { get; set; }
         
 		[MaxLength(100)]
         [DisplayName("Order Address")]
@@ -32,10 +32,10 @@ namespace Mailo.Models
         public string OrderAddress { get; set; }
 		[DisplayName("Order Status")]
 
-		public OrderStatus OrderStatus { get; set; } = OrderStatus.New;
-		[ForeignKey("user")]
-		public int? UserID { get; set; }
-		public User? user { get; set; }
+        public OrderStatus OrderStatus { get; set; } = OrderStatus.New;
+        [ForeignKey("user")]
+		public int UserID { get; set; }
+		public User user { get; set; }
 		[ForeignKey("employee")]
 		public int? EmpID { get; set; }
 		public Employee? employee { get; set; }
