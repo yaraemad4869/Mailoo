@@ -17,7 +17,8 @@ namespace Mailo.Repo
 			wishlists=new BasicRepo<Wishlist>(_db);
 			reviews=new BasicRepo<Review>(_db);
 			payments=new BasicRepo<Payment>(_db);
-			search=new SearchRepo(_db);
+            orderProducts=new BasicRepo<OrderProduct>(_db);
+            search =new SearchRepo(_db);
         }
 		public IBasicRepo<User> users { get; private set; }
 		public IBasicRepo<Employee> employees { get; private set; }
@@ -25,12 +26,13 @@ namespace Mailo.Repo
 		public IBasicRepo<Product> products { get; private set; }
 		public IBasicRepo<Wishlist> wishlists { get; private set; }
 		public IBasicRepo<Review> reviews { get; private set; }
+        public IBasicRepo<OrderProduct> orderProducts { get; private set; }
 
-		public IBasicRepo<Payment> payments { get; private set; }
+        public IBasicRepo<Payment> payments { get; private set; }
 		public ISearchRepo search { get; private set; }
-		public int CommitChanges()
+		public async Task<int> CommitChangesAsync()
 		{
-			return _db.SaveChanges();
+			return await _db.SaveChangesAsync();
 		}
 
 		public void Dispose()

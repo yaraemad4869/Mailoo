@@ -7,16 +7,21 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
-using NuGet.Protocol;
 
 namespace Mailo.Repo
 {
     public class CartRepo : ICartRepo
     {
         private readonly AppDbContext _db;
-        public CartRepo(AppDbContext db, IBasicRepo<Order> repo)
+        public CartRepo(AppDbContext db)
         {
             _db = db;
+        }
+        public async Task<Order> GetOrCreateCart(User user)
+        {
+            var cart = await _db.Orders.FirstOrDefaultAsync(o => o.UserID == user.ID && o.OrderStatus == OrderStatus.New);
+            
+            return cart;
         }
         public async Task<List<Product>> GetProducts(Order order)
         {

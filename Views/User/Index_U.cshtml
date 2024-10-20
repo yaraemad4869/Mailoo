@@ -11,7 +11,7 @@
                         <p class="card-text">@item.Description</p>
                         <p>Price @item.TotalPrice</p>
                          <p class="card-text">Quuantity : @item.Quantity</p>
-                        <form asp-action="New" asp-controller="Cart">
+                        <form asp-action="AddProduct" asp-controller="Cart">
                             <input asp-for="@item.ID" type="hidden" />
                             <input asp-for="@item.imageSrc" type="hidden">
                             <input asp-for="@item.Discount" type="hidden" />

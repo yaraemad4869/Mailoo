@@ -30,7 +30,7 @@ namespace Mailo.Repo
 			await _db.Set<T>().AddAsync(entity);
 			_db.SaveChanges();
 		}
-		public async void Update(T entity)
+		public void Update(T entity)
 		{
 			_db.Set<T>().Update(entity);
 			_db.SaveChanges();

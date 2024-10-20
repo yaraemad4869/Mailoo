@@ -1,81 +1,58 @@
-﻿@* @model List<Product>
-@{
-	ViewData["Title"] = "Show Cart";
-}
-<div>
-	<button type="button" class="btn btn-info" asp-action="NewOrder" asp-controller="Cart">Buy</button>
-    <div class="container p-3">
-        <div class="row justify-content-center">
-            @foreach (var item in Model)
-            {
-                @if (item.Quantity > 0)
-                { 
-
-                    <div class="col-md-4 col-sm-6 d-flex justify-content-center">
-                        <div class="card" style="width: 18rem;">
-                            <img src="@item.imageSrc" class="card-img-top" alt="Product Image">
-                            <div class="card-body">
-                                <h5 class="card-title">@item.Name</h5>
-                                <p class="card-text">@item.Description</p>
-                                <p>Price @item.Price</p>
-
-                                <a asp-controller="Cart" asp-action="Delete" asp-route-Id="@item.ID" class="btn btn-primary btn-sm btn-danger">
-                                    <i class="bi bi-trash3"></i> Delete
-                                </a>
-
-                                <a asp-action="New" asp-controller="Wishlist">
-                                    <i class="bi bi-bag-heart" style="font-size: 24px;"></i>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                }
-            }
-        </div>
-    </div>
-</div> *@
-
-@model Order
+﻿@model List<Product>
 
 <h2>Your Shopping Cart</h2>
 
-@if (Model == null || !Model.OrderProducts.Any())
-{
-    <p>Your cart is empty.</p>
-}
-else
-{
-    <table>
-        <tr>
-            <th>Product</th>
-            <th>Total</th>
-            <th>Actions</th>
-        </tr>
-        @foreach (var item in Model.OrderProducts)
+
+        @foreach (var product in Model)
         {
-            <tr>
-                <td>@item.product.Name</td>
-                @* <td>@item.Quantity</td> *@
-                <td>@item.product.TotalPrice.ToString("C")</td>
-                @* <td>@(item.Quantity * item.product.Price).ToString("C")</td> *@
-                <td>
+        <div class="col-md-4 col-sm-6 d-flex justify-content-center">
+            <div class="card" style="width: 18rem;">
+                <img src="@product.imageSrc" class="card-img-top" alt="Product Image">
+                <div class="card-body">
+                    <h5 class="card-title">@product.Name</h5>
+                    <p class="card-text">@product.Description</p>
+                    <p>
+                        Price
+                        @if (@product.Price != @product.TotalPrice)
+                        {
+                            <span class="text-decoration-line-through">@product.Price</span>
+                        } @product.TotalPrice
+                    </p>
+                    <p class="card-text">Quuantity : @product.Quantity</p>
+                    
+                    <form asp-action="AddProduct" asp-controller="Cart" method="post">
+                        <input type="hidden" name="ID" value="@product.ID" />
+                        <input type="hidden" name="Name" value="@product.Name" />
+                        <input type="hidden" name="Price" value="@product.Price" />
+                        <input type="hidden" name="Quantity" value="@product.Quantity" />
+                        <input type="hidden" name="TotalPrice" value="@product.TotalPrice" />
+                        <input type="hidden" name="Discount" value="@product.Discount" />
+                        <input type="hidden" name="imageSrc" value="@product.imageSrc" />
+                        <!-- Add any other properties that you want to send -->
+
+                        <button type="submit">Add to Cart</button>
+                    </form>
+                    @using (Html.BeginForm("ClearCart", "Cart", FormMethod.Post))
+                    {
+                        <input type="submit" value="Clear Cart" />
+                    }
+
+                    @using (Html.BeginForm("Checkout", "Cart", FormMethod.Post))
+                    {
+                        <input type="submit" value="Checkout" />
+                    }
                     @using (Html.BeginForm("RemoveProduct", "Cart", FormMethod.Post))
                     {
-                        @Html.Hidden("productId", item.ProductID)
+                        @Html.Hidden("productId", product.ID)
                         <input type="submit" value="Remove" />
                     }
-                </td>
-            </tr>
+                    @* <a href="#" class="btn btn-primary">Add to cart</a> *@
+                    <a asp-action="AddProduct" asp-controller="Cart" asp-route-id="@product.ID">Add to cart</a>
+
+                </div>
+            </div>
+        </div>
         }
-    </table>
 
-    @using (Html.BeginForm("ClearCart", "Cart", FormMethod.Post))
-    {
-        <input type="submit" value="Clear Cart" />
-    }
+  
 
-    @using (Html.BeginForm("Checkout", "Cart", FormMethod.Post))
-    {
-        <input type="submit" value="Checkout" />
-    }
-}

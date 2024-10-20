@@ -11,114 +11,155 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Mailo.Controllers
 {
-    //[Authorize(Roles ="Client")]
     public class CartController : Controller
     {
-        
         private readonly ICartRepo _order;
         private readonly IUnitOfWork _unitOfWork;
         private readonly AppDbContext _db;
         public CartController(ICartRepo order, IUnitOfWork unitOfWork, AppDbContext db)
         {
-            //_userManager = userManager;
             _order = order;
             _db = db;
             _unitOfWork = unitOfWork;
         }
-        private Order GetOrCreateCart(User user)
-        {
-            var cart = _db.Orders.FirstOrDefault(o => o.UserID == user.ID && o.OrderStatus == OrderStatus.New);
-            if (cart == null)
-            {
-                cart = new Order
-                {
-                    UserID = user.ID,
-                    OrderPrice = 0,
-                    OrderAddress = user.Address,
-                    OrderStatus = OrderStatus.New,
-                    OrderProducts = new List<OrderProduct>()
-                };
-                _unitOfWork.orders.Insert(cart);
-            }
-            return cart;
-        }
         public async Task<IActionResult> Index()
         {
+            // Get the logged-in user
             User? user = _db.Users.Where(x => x.Email == User.Identity.Name).FirstOrDefault();
-
             if (user == null)
             {
                 return NotFound("User not found");
             }
 
-            Order cart = await _db.Orders.Where(o => o.UserID == user.ID && o.OrderStatus == OrderStatus.New).FirstOrDefaultAsync();
-                if (cart == null)
-                {
-                return BadRequest("Cart is empty");
-                    // cart = new Order { OrderPrice = 0, OrderAddress = user.Address, UserID = user.ID };
-                    //_unitOfWork.orders.Insert(cart);
-                }
-            Console.WriteLine("************************" + cart.ID + "**********************");
+            // Get the user's cart
+            Order? cart = await _order.GetOrCreateCart(user);
+            if (cart == null || cart.OrderProducts == null )
+            {
+                return View(new List<Product>()); // No products in the cart
+            }
 
-            return View(cart);
-            //return View(await _order.GetProducts(await _order.GetOrder(user)));
+            
+            // Pass the list of products to the view
+            return View(cart.OrderProducts.Select(op => op.product).ToList());
         }
+
         [HttpPost]
-        public ActionResult ClearCart()
+        public async Task<IActionResult> ClearCart()
         {
             User? user = _db.Users.Where(x => x.Email == User.Identity.Name).FirstOrDefault();
-            var cart = GetOrCreateCart(user);
+            var cart = await _order.GetOrCreateCart(user);
+            if (cart !=null)
+            {
+                _unitOfWork.orders.Delete(cart);
+            }
+            else
+            {
+                return BadRequest("cart is already empty");
 
-            cart.OrderProducts.Clear();
-            _db.SaveChanges();
+            }
 
             return RedirectToAction("Index");
         }
+        //public async Task<IActionResult> AddProduct(int id)
+        //{
+        //    return RedirectToAction("AddProduct", await _unitOfWork.products.GetByID(id));
+        //}
         [HttpPost]
-        public async Task<IActionResult> AddProduct(int productId)
+        public async Task<IActionResult> AddProduct(Product product)
         {
+            Console.WriteLine($"*************************{product.ID} - {product.Name}*************************");
             User? user = _db.Users.Where(x => x.Email == User.Identity.Name).FirstOrDefault();
-            var cart = GetOrCreateCart(user);
-
-            var product = await _db.Products.FindAsync(productId);
+            if (user == null)
+            {
+                return NotFound("User not found");
+            }
             if (product == null)
             {
                 return NotFound("Product not found");
             }
 
-            var existingOrderProduct = cart.OrderProducts.FirstOrDefault(op => op.ProductID == productId);
-            if (existingOrderProduct != null)
+            // Get or create cart for the user
+            Order? cart = await _order.GetOrCreateCart(user);
+            if (cart == null)
             {
-                cart.OrderPrice += product.TotalPrice;
+                cart = new Order
+                {
+                    UserID = user.ID,
+                    OrderPrice = product.TotalPrice,
+                    OrderAddress = user.Address,
+                    OrderProducts = new List<OrderProduct>()
+                };
+
+                // Insert the cart first to generate cart.ID
+                _unitOfWork.orders.Insert(cart);
+                await _unitOfWork.CommitChangesAsync(); // Save to get cart.ID generated
+
+                // Now cart.ID exists, so we can add the OrderProduct
+                cart.OrderProducts.Add(new OrderProduct
+                {
+                    ProductID = product.ID,
+                    OrderID = cart.ID
+                });
+                product.Quantity -= 1;
+                _unitOfWork.products.Update(product);
+                await _unitOfWork.CommitChangesAsync(); // Save changes
             }
             else
             {
-                // Otherwise, add a new product to the cart
-                cart.OrderProducts.Add(new OrderProduct
+                // Check if the product is already in the cart
+                OrderProduct? existingOrderProduct = cart.OrderProducts
+                    .Where(op => op.ProductID == product.ID)
+                    .FirstOrDefault();
+
+                if (existingOrderProduct != null)
                 {
-                    ProductID = productId,
-                    OrderID = cart.ID
-                });
+                    return BadRequest("Product is already in cart");
+                }
+                else
+                {
+                    cart.OrderPrice += product.TotalPrice;
+
+                    // Add the new product to the cart
+                    cart.OrderProducts.Add(new OrderProduct
+                    {
+                        ProductID = product.ID,
+                        OrderID = cart.ID
+                    });
+
+                    _unitOfWork.orders.Update(cart); // Update cart
+                    product.Quantity -= 1;
+                    _unitOfWork.products.Update(product); // Update product quantity
+
+                    await _unitOfWork.CommitChangesAsync(); // Save all changes
+                }
             }
 
-            _db.SaveChanges();
             return RedirectToAction("Index");
         }
         [HttpPost]
         public async Task<IActionResult> RemoveProduct(int productId)
         {
             User? user = await _db.Users.Where(x => x.Email == User.Identity.Name).FirstOrDefaultAsync();
-            var cart = GetOrCreateCart(user);
-
-            var orderProduct = cart.OrderProducts.FirstOrDefault(op => op.ProductID == productId);
-            if (orderProduct != null)
+            var cart = await _order.GetOrCreateCart(user);
+            if (cart == null)
             {
-                var product = await _db.Products.FindAsync(productId);
-                cart.OrderPrice -= product.TotalPrice;
-                cart.OrderProducts.Remove(orderProduct);
-                _db.SaveChanges();
+                return BadRequest("Cart is empty");
             }
+            else{
+                var orderProduct = cart.OrderProducts.FirstOrDefault(op => op.ProductID == productId);
+                if (orderProduct != null)
+                {
+                    var product = await _unitOfWork.products.GetByID(productId);
+                    cart.OrderPrice -= product.TotalPrice;
+                    cart.OrderProducts.Remove(orderProduct);
+                    _db.SaveChanges();
+                }
+                else
+                {
+                    return NotFound("Product not found");
 
+                }
+            }
             return RedirectToAction("Index");
         }
         public async Task<IActionResult> New()
@@ -127,7 +168,7 @@ namespace Mailo.Controllers
         }
             [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> New(Product product)
+        public async Task<IActionResult> New(Product products)
         {
             var user = _db.Users.Where(x => x.Email == User.Identity.Name).FirstOrDefault();
             if (user == null)
@@ -135,36 +176,30 @@ namespace Mailo.Controllers
                 return Unauthorized();
             }
 
-            if (user.orders != null)
+            var cart = await _order.GetOrCreateCart(user);
+
+            var product = _unitOfWork.products.GetByID(products.ID);
+            if (product == null)
             {
-                var existingCartItem = await _order.ExistingCartItem(product.ID, user);
-
-                if (existingCartItem != null)
-                {
-                    return BadRequest("Product is already in the cart.");
-                }
-
-                Order o = await _order.GetOrder(user);
-
-                _order.InsertToCart(o.ID, existingCartItem.ProductID);
+                return NotFound("Product not found");
             }
-            else
-            {
+           
                 Order order = new Order
                 {
-                    OrderPrice = product.TotalPrice,
+                    OrderPrice = products.TotalPrice,
                     OrderAddress = user.Address,
                     UserID = user.ID
                 };
-                _db.Orders.Add(order);
+                _unitOfWork.orders.Insert(order);
                 _db.SaveChanges();
                 OrderProduct op = new OrderProduct
                 {
                     OrderID=order.ID,
-                    ProductID=product.ID
+                    ProductID=products.ID
                 };
                 _order.InsertToCart(order.ID, op.ProductID);
-            }
+            _unitOfWork.orderProducts.Insert(op);
+
             TempData["Success"] = "Product Has Been Added Successfully";
             return RedirectToAction("Index");
         }
