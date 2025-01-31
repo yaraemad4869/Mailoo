@@ -1,0 +1,72 @@
+﻿@model Product
+@{
+    ViewData["Title"] = "Delete";
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <style>
+        .container {
+            background-color: rgba(143, 217, 251, 0.2);
+            border-radius: 10px;
+            padding: 2%;
+            width: 50%;
+            margin: auto;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.4);
+        }
+
+        .form-control {
+            width: 250px;
+        }
+
+        .variant-item {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h2 class="text-primary text-center">Delete Item</h2>
+    <hr />
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <form method="post" asp-action="Delete">
+                    <input asp-for="ID" type="hidden" />
+                    <div class="mb-3">
+                        <label asp-for="Name" class="form-label"></label>
+                        <input asp-for="Name" disabled class="form-control" />
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="Price" class="form-label"></label>
+                        <input asp-for="Price" disabled class="form-control" />
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="Discount" class="form-label"></label>
+                        <input asp-for="Discount" disabled class="form-control" />
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="Description" class="form-label"></label>
+                        <input asp-for="Description" disabled class="form-control" />
+                    </div>
+                  
+
+                   
+                   
+
+                    <hr />
+                    <button type="submit" class="btn btn-primary">Delete</button>
+                    <a asp-action="Index" asp-controller="Product" class="btn btn-secondary">Back to Items</a>
+                </form>
+            </div>
+        </div>
+    </div>
+    <br />
+</body>
+</html>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+      
+    </script>
+}

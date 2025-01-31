@@ -1,0 +1,31 @@
+﻿@model IEnumerable<Mailoo.Models.ProductVariant>
+
+<h2>Product Variants</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Product</th>
+            <th>Color</th>
+            <th>Size</th>
+            <th>Quantity</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var variant in Model)
+        {
+            <tr>
+                <td>@variant.Product.Name</td>
+                <td>@variant.Color.ColorName</td>
+                <td>@variant.Size.SizeName</td>
+                <td>@variant.Quantity</td>
+                <td>
+                    <a asp-action="Delete" asp-route-id="@variant.Id" class="btn btn-danger btn-sm">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a asp-action="Create" class="btn btn-primary">Add New Variant</a>

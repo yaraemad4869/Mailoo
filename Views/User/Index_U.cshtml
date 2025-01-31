@@ -1,0 +1,155 @@
+﻿@model IEnumerable<Product>
+@using Mailo.Data.Enums;
+@{
+    ViewData["Title"] = "Products";
+}
+
+<div class="container">
+    <div class="row justify-content-center">
+
+        @if (!Model?.Any() ?? true)
+        {
+            <h1 class="text-center text-muted">No Products Available</h1>
+        }
+        else
+        {
+            <form method="get" asp-action="Search" asp-controller="User" class="d-flex justify-content-center my-4">
+                <input type="text" name="text" class="form-control w-75 border-primary rounded-2" placeholder="Search products..." />
+                <button class="btn btn-primary" type="submit"><i class="bi bi-search"></i></button>
+            </form>
+
+            @foreach (var item in Model)
+            {
+                var availableVariants = item.Variants?.Where(v => v.Quantity > 0).ToList();
+                bool isAddedToCart = item.OrderProducts?.Any(op => op.order.user.Email == User.Identity.Name
+                && op.order.OrderStatus == OrderStatus.New) ?? false;
+
+                if (availableVariants?.Any() == true)
+                {
+                    <div class="col-md-4 col-sm-6 d-flex justify-content-center">
+                        <div class="card shadow-sm" style="width: 18rem;">
+                            <img src="@item.imageSrc" class="card-img-top" alt="@item.Name">
+                            <div class="card-body">
+                                <h5 class="card-title fw-bold">@item.Name</h5>
+                                <p class="card-text">@item.Description</p>
+
+                                <h4 class="mt-2">
+                                    @item.TotalPrice
+                                    @if (item.TotalPrice != item.Price)
+                                    {
+                                        <span class="text-muted fs-6">
+                                            <del class="text-danger">@item.Price</del>
+                                        </span>
+                                    }
+                                </h4>
+
+                                <form asp-action="AddProduct" asp-controller="Cart" method="post">
+                                    <input type="hidden" name="productId" value="@item.ID" />
+                                    <input type="hidden" name="color" id="color_@item.ID" value="" />
+                                    <input type="hidden" name="size" id="size_@item.ID" value="" />
+                                    <input type="hidden" name="quantity" value="1" />
+
+                                    <!-- Size Dropdown -->
+                                    <div class="form-group mb-2">
+                                        <label class="fw-bold">Size</label>
+                                        <select name="sizeSelect" class="form-control size-select" data-product-id="@item.ID">
+                                            <option value="">Select Size</option>
+                                            @foreach (var variant in availableVariants.GroupBy(v => v.SizeId).Select(g => g.First()))
+                                            {
+                                                <option value="@variant.SizeId">@variant.Size?.SizeName</option>
+                                            }
+                                        </select>
+                                    </div>
+
+                                    <!-- Color Dropdown -->
+                                    <div class="form-group mb-2">
+                                        <label class="fw-bold">Color</label>
+                                        <select name="colorSelect" class="form-control color-select" data-product-id="@item.ID" disabled>
+                                            <option value="">Select Color</option>
+                                        </select>
+                                    </div>
+
+                                    <button type="submit" class="btn btn-success w-100 add-to-cart" data-product-id="@item.ID" disabled>
+                                        Add to Cart
+                                    </button>
+                                </form>                                <form asp-action="AddtoWishlist" asp-controller="Wishlist" method="post" class="mt-2">
+                                    <input type="hidden" name="ID" value="@item.ID" />
+                                    <input type="hidden" name="Name" value="@item.Name" />
+                                    <input type="hidden" name="Price" value="@item.Price" />
+                                    <input type="hidden" name="Description" value="@item.Description" />
+                                    <input type="hidden" name="imageSrc" value="@item.imageSrc" />
+                                    <button type="submit" class="btn btn-outline-danger w-100">
+                                        <i class="bi bi-heart"></i> Add to Wishlist
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const sizeSelects = document.querySelectorAll('.size-select');
+            sizeSelects.forEach(sizeSelect => {
+                sizeSelect.addEventListener('change', function () {
+                    const productId = this.getAttribute('data-product-id');
+                    const colorSelect = document.querySelector(`.color-select[data-product-id="${productId}"]`);
+                    const addToCartButton = document.querySelector(`.add-to-cart[data-product-id="${productId}"]`);
+                    const sizeInput = document.querySelector(`#size_${productId}`);
+
+                    // Set the selected size in the hidden input
+                    sizeInput.value = this.value;
+                    console.log(`Size selected for product ${productId}:`, this.value); // Debugging
+
+                    if (this.value) {
+                        // Fetch available colors for the selected size
+                        fetch(`/Cart/GetColorsForSize?productId=${productId}&sizeId=${this.value}`)
+                            .then(response => response.json())
+                            .then(data => {
+                                console.log(`Colors fetched for product ${productId}:`, data); // Debugging
+                                colorSelect.innerHTML = '<option value="">Select Color</option>';
+                                data.forEach(color => {
+                                    const option = document.createElement('option');
+                                    option.value = color.colorId; // Ensure this returns the colorId
+                                    option.textContent = color.colorName;
+                                    colorSelect.appendChild(option);
+                                });
+                                colorSelect.disabled = false; // Enable the color dropdown
+                            })
+                            .catch(error => {
+                                console.error('Error fetching colors:', error);
+                            });
+                    } else {
+                        colorSelect.innerHTML = '<option value="">Select Color</option>';
+                        colorSelect.disabled = true; // Disable the color dropdown
+                        addToCartButton.disabled = true; // Disable the "Add to Cart" button
+                    }
+                });
+            });
+
+            const colorSelects = document.querySelectorAll('.color-select');
+            colorSelects.forEach(colorSelect => {
+                colorSelect.addEventListener('change', function () {
+                    const productId = this.getAttribute('data-product-id');
+                    const addToCartButton = document.querySelector(`.add-to-cart[data-product-id="${productId}"]`);
+                    const colorInput = document.querySelector(`#color_${productId}`);
+
+                    // Set the selected color in the hidden input
+                    colorInput.value = this.value;
+                    console.log(`Color selected for product ${productId}:`, this.value); // Debugging
+
+                    if (this.value) {
+                        addToCartButton.disabled = false;
+                    } else {
+                        addToCartButton.disabled = true;
+                    }
+                });
+            });
+        });
+    </script>
+}
